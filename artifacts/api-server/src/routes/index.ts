@@ -1,4 +1,8 @@
 import { Router, type IRouter } from "express";
+import { activityRouter } from "./activity";
+import { commsRouter } from "./comms";
+import { followupsRouter } from "./followups";
+import { vendorReviewsRouter } from "./vendorReviews";
 import healthRouter from "./health";
 import profilesRouter from "./profiles";
 import relocationsRouter from "./relocations";
@@ -34,5 +38,9 @@ router.use(reportsRouter);
 router.use(taskTemplatesRouter);
 router.use(invoicesRouter);
 router.use(statusRouter);
+router.use(activityRouter);
+router.use(commsRouter);
+router.use(followupsRouter);
+router.use(vendorReviewsRouter);
 
 export default router;

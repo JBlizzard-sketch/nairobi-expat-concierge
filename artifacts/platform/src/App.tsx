@@ -25,6 +25,12 @@ import Billing from "@/pages/Billing";
 import ClientStatus from "@/pages/ClientStatus";
 import NewCase from "@/pages/NewCase";
 import Pipeline from "@/pages/Pipeline";
+import CalendarView from "@/pages/CalendarView";
+import Team from "@/pages/Team";
+import Neighbourhoods from "@/pages/Neighbourhoods";
+import ActivityTimeline from "@/pages/ActivityTimeline";
+import CommLog from "@/pages/CommLog";
+import FollowUps from "@/pages/FollowUps";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -49,11 +55,17 @@ function Router() {
           <Switch>
             <Route path="/" component={Dashboard} />
             <Route path="/relocations" component={Relocations} />
+            <Route path="/relocations/:id/activity" component={ActivityTimeline} />
+            <Route path="/relocations/:id/comms" component={CommLog} />
+            <Route path="/followups" component={FollowUps} />
             <Route path="/relocations/:id">
               {(params) => <RelocationDetail id={params.id!} />}
             </Route>
             <Route path="/profiles" component={Profiles} />
             <Route path="/pipeline" component={Pipeline} />
+            <Route path="/calendar" component={CalendarView} />
+            <Route path="/team" component={Team} />
+            <Route path="/neighbourhoods" component={Neighbourhoods} />
             <Route path="/cases/new" component={NewCase} />
             <Route path="/profiles/new" component={NewProfile} />
             <Route path="/profiles/:id">

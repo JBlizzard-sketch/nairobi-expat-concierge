@@ -17,6 +17,8 @@ import {
   Layers,
   CreditCard,
   Kanban,
+  CalendarDays,
+  ListChecks,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useGetAlertCount } from "@workspace/api-client-react";
@@ -25,6 +27,10 @@ const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/relocations", label: "Relocations", icon: Plane },
   { href: "/pipeline", label: "Pipeline", icon: Kanban },
+  { href: "/calendar", label: "Calendar", icon: CalendarDays },
+  { href: "/team", label: "Team", icon: Users },
+  { href: "/neighbourhoods", label: "Neighbourhoods", icon: MapPin },
+  { href: "/followups", label: "Follow-ups", icon: ListChecks },
   { href: "/alerts", label: "Alerts", icon: Bell, alertBadge: true },
   { href: "/reports", label: "Reports", icon: FileText },
   { href: "/billing", label: "Billing", icon: CreditCard },

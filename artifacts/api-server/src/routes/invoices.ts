@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { invoicesTable, relocationsTable, profilesTable } from "@workspace/db";
+import { invoicesTable, relocationsTable, profilesTable, activityLogsTable } from "@workspace/db";
 import { eq, desc, and } from "drizzle-orm";
 import { CreateInvoiceBody, UpdateInvoiceBody } from "@workspace/api-zod";
 import { toJson } from "../lib/serialize";
@@ -143,6 +143,12 @@ invoicesRouter.post("/relocations/:id/invoices", async (req, res) => {
     notes: body.notes ?? null,
     lineItems: JSON.stringify(lineItems),
   }).returning();
+
+  await db.insert(activityLogsTable).values({
+    relocationId,
+    eventType: "invoice_created",
+    description: `Invoice ${row!.invoiceNumber} created — $${body.amountUsd.toLocaleString()} (${body.packageTier.replace(/_/g, " ")})`,
+  });
 
   res.status(201).json({ ...toJson(row!), lineItems: parseLineItems(row!.lineItems) });
 });
