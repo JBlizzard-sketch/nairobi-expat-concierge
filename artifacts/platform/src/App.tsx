@@ -10,9 +10,13 @@ import Relocations from "@/pages/Relocations";
 import RelocationDetail from "@/pages/RelocationDetail";
 import Profiles from "@/pages/Profiles";
 import NewProfile from "@/pages/NewProfile";
+import ProfileDetail from "@/pages/ProfileDetail";
 import HousingListings from "@/pages/HousingListings";
+import HousingDetail from "@/pages/HousingDetail";
 import Schools from "@/pages/Schools";
+import SchoolDetail from "@/pages/SchoolDetail";
 import Vendors from "@/pages/Vendors";
+import VendorDetail from "@/pages/VendorDetail";
 import Settings from "@/pages/Settings";
 
 const queryClient = new QueryClient({
@@ -35,9 +39,21 @@ function Router() {
         </Route>
         <Route path="/profiles" component={Profiles} />
         <Route path="/profiles/new" component={NewProfile} />
+        <Route path="/profiles/:id">
+          {(params) => <ProfileDetail id={params.id} />}
+        </Route>
         <Route path="/housing" component={HousingListings} />
+        <Route path="/housing/:id">
+          {(params) => <HousingDetail id={params.id} />}
+        </Route>
         <Route path="/schools" component={Schools} />
+        <Route path="/schools/:id">
+          {(params) => <SchoolDetail id={params.id} />}
+        </Route>
         <Route path="/vendors" component={Vendors} />
+        <Route path="/vendors/:id">
+          {(params) => <VendorDetail id={params.id} />}
+        </Route>
         <Route path="/settings" component={Settings} />
         <Route component={NotFound} />
       </Switch>

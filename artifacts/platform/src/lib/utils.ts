@@ -31,3 +31,15 @@ export function getInitials(name: string): string {
     .toUpperCase()
     .substring(0, 2);
 }
+
+export function parseTextList(raw: string | null | undefined): string[] {
+  if (!raw) return [];
+  const trimmed = raw.trim();
+  const unwrapped = trimmed.startsWith('{') && trimmed.endsWith('}')
+    ? trimmed.slice(1, -1)
+    : trimmed;
+  return unwrapped
+    .split(',')
+    .map(s => s.trim().replace(/^"|"$/g, ''))
+    .filter(Boolean);
+}

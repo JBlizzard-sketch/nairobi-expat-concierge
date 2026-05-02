@@ -81,7 +81,7 @@ export default function Profiles() {
                   </tr>
                 ) : (
                   filteredProfiles?.map((profile) => (
-                    <tr key={profile.id} className="hover:bg-muted/30 transition-colors group">
+                    <tr key={profile.id} className="hover:bg-muted/30 transition-colors group cursor-pointer" onClick={() => window.location.href = `/profiles/${profile.id}`} data-testid={`profile-row-${profile.id}`}>
                       <td className="px-6 py-4">
                         <div className="font-medium text-base text-foreground group-hover:text-primary transition-colors">
                           {profile.fullName}

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useListSchools } from "@workspace/api-client-react";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -94,7 +95,8 @@ export default function Schools() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filteredSchools?.map((school) => (
-            <Card key={school.id} className="overflow-hidden transition-all hover-elevate flex flex-col">
+            <Link key={school.id} href={`/schools/${school.id}`}>
+            <Card className="overflow-hidden transition-all hover-elevate flex flex-col cursor-pointer group">
               <CardHeader className="pb-3 flex-none">
                 <div className="flex justify-between items-start">
                   <div>
@@ -150,9 +152,10 @@ export default function Schools() {
                   )}
                 </div>
                 
-                <Button variant="outline" className="w-full mt-auto">View Details</Button>
+                <Button variant="outline" className="w-full mt-auto" tabIndex={-1}>View Details</Button>
               </CardContent>
             </Card>
+            </Link>
           ))}
         </div>
       )}

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useListHousing } from "@workspace/api-client-react";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -99,7 +100,8 @@ export default function HousingListings() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filteredHousing?.map((listing) => (
-            <Card key={listing.id} className={`overflow-hidden transition-all hover-elevate ${!listing.isAvailable ? 'opacity-75 grayscale-[0.2]' : ''}`}>
+            <Link key={listing.id} href={`/housing/${listing.id}`}>
+            <Card className={`overflow-hidden transition-all hover-elevate cursor-pointer group ${!listing.isAvailable ? 'opacity-75 grayscale-[0.2]' : ''}`}>
               <div className="aspect-video w-full bg-muted relative border-b">
                 {listing.imageUrl ? (
                   <img src={listing.imageUrl} alt={listing.title} className="w-full h-full object-cover" />
@@ -141,6 +143,7 @@ export default function HousingListings() {
                 </div>
               </CardContent>
             </Card>
+            </Link>
           ))}
         </div>
       )}
