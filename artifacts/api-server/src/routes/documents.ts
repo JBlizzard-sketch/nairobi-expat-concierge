@@ -6,7 +6,7 @@ import {
   ListRelocationDocumentsResponse,
   CreateRelocationDocumentParams,
   CreateRelocationDocumentBody,
-  CreateRelocationDocumentResponse,
+  UpdateRelocationDocumentResponse as CreateRelocationDocumentResponse,
   UpdateRelocationDocumentParams,
   UpdateRelocationDocumentBody,
   UpdateRelocationDocumentResponse,

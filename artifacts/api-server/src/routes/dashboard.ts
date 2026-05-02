@@ -1,11 +1,26 @@
 import { Router, type IRouter } from "express";
-import { count, eq, desc } from "drizzle-orm";
-import { db, profilesTable, relocationsTable, housingListingsTable, schoolsTable, vendorsTable } from "@workspace/db";
+import { count, eq, desc, lt, and, not, inArray } from "drizzle-orm";
+import {
+  db,
+  profilesTable,
+  relocationsTable,
+  housingListingsTable,
+  schoolsTable,
+  vendorsTable,
+  relocationTasksTable,
+  relocationDocumentsTable,
+  caseVendorsTable,
+} from "@workspace/db";
 import {
   GetDashboardSummaryResponse,
   GetRecentRelocationsResponse,
   GetRelocationsByStatusResponse,
   GetHousingByNeighbourhoodResponse,
+  GetTaskCompletionStatsResponse,
+  GetDocumentStatusBreakdownResponse,
+  GetVendorEngagementResponse,
+  GetRelocationsByStageResponse,
+  GetOverdueDocumentsResponse,
 } from "@workspace/api-zod";
 import { toJson } from "../lib/serialize";
 
@@ -71,6 +86,90 @@ router.get("/dashboard/housing-by-neighbourhood", async (_req, res): Promise<voi
     .from(housingListingsTable)
     .groupBy(housingListingsTable.neighbourhood);
   res.json(GetHousingByNeighbourhoodResponse.parse(rows));
+});
+
+router.get("/dashboard/task-completion", async (_req, res): Promise<void> => {
+  const [total] = await db.select({ count: count() }).from(relocationTasksTable);
+  const [completed] = await db
+    .select({ count: count() })
+    .from(relocationTasksTable)
+    .where(eq(relocationTasksTable.status, "completed"));
+  const totalTasks = Number(total.count);
+  const completedTasks = Number(completed.count);
+  const pendingTasks = totalTasks - completedTasks;
+  const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  res.json(GetTaskCompletionStatsResponse.parse({ totalTasks, completedTasks, pendingTasks, completionRate }));
+});
+
+router.get("/dashboard/document-status", async (_req, res): Promise<void> => {
+  const rows = await db
+    .select({ status: relocationDocumentsTable.status, count: count() })
+    .from(relocationDocumentsTable)
+    .groupBy(relocationDocumentsTable.status);
+  res.json(GetDocumentStatusBreakdownResponse.parse(rows.map(r => ({ status: r.status, count: Number(r.count) }))));
+});
+
+router.get("/dashboard/vendor-engagement", async (_req, res): Promise<void> => {
+  const rows = await db
+    .select({ status: caseVendorsTable.status, count: count() })
+    .from(caseVendorsTable)
+    .groupBy(caseVendorsTable.status);
+  res.json(GetVendorEngagementResponse.parse(rows.map(r => ({ status: r.status, count: Number(r.count) }))));
+});
+
+router.get("/dashboard/relocations-by-stage", async (_req, res): Promise<void> => {
+  const rows = await db
+    .select({ stage: relocationsTable.stage, count: count() })
+    .from(relocationsTable)
+    .groupBy(relocationsTable.stage);
+  res.json(GetRelocationsByStageResponse.parse(rows.map(r => ({ stage: r.stage, count: Number(r.count) }))));
+});
+
+router.get("/dashboard/overdue-documents", async (_req, res): Promise<void> => {
+  const today = new Date().toISOString().split("T")[0]!;
+  const COMPLETE_STATUSES = ["received", "approved"];
+  const rows = await db
+    .select({
+      id: relocationDocumentsTable.id,
+      name: relocationDocumentsTable.name,
+      category: relocationDocumentsTable.category,
+      dueDate: relocationDocumentsTable.dueDate,
+      relocationId: relocationDocumentsTable.relocationId,
+      status: relocationDocumentsTable.status,
+    })
+    .from(relocationDocumentsTable)
+    .where(
+      and(
+        not(inArray(relocationDocumentsTable.status, COMPLETE_STATUSES)),
+        lt(relocationDocumentsTable.dueDate, today)
+      )
+    )
+    .orderBy(relocationDocumentsTable.dueDate);
+
+  const profiles = await db
+    .select({ id: profilesTable.id, fullName: profilesTable.fullName })
+    .from(profilesTable)
+    .innerJoin(relocationsTable, eq(relocationsTable.profileId, profilesTable.id));
+
+  const relocationToProfile = new Map<number, string>();
+  const relocations = await db.select({ id: relocationsTable.id, profileId: relocationsTable.profileId }).from(relocationsTable);
+  const profileMap = new Map(profiles.map(p => [p.id, p.fullName]));
+  for (const r of relocations) {
+    relocationToProfile.set(r.id, profileMap.get(r.profileId) ?? "Unknown");
+  }
+
+  const result = rows
+    .filter(r => r.dueDate !== null)
+    .map(r => ({
+      id: r.id,
+      name: r.name,
+      category: r.category,
+      dueDate: r.dueDate!,
+      relocationId: r.relocationId,
+      clientName: relocationToProfile.get(r.relocationId) ?? "Unknown",
+    }));
+
+  res.json(GetOverdueDocumentsResponse.parse(result));
 });
 
 export default router;

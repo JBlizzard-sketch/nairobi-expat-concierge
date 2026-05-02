@@ -11,13 +11,24 @@ import {
   Settings,
   Menu,
   X,
-  Plane
+  Plane,
+  Bell,
+  FileText,
+  Layers,
+  CreditCard,
+  Kanban,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useGetAlertCount } from "@workspace/api-client-react";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/relocations", label: "Relocations", icon: Plane },
+  { href: "/pipeline", label: "Pipeline", icon: Kanban },
+  { href: "/alerts", label: "Alerts", icon: Bell, alertBadge: true },
+  { href: "/reports", label: "Reports", icon: FileText },
+  { href: "/billing", label: "Billing", icon: CreditCard },
+  { href: "/templates", label: "Templates", icon: Layers },
   { href: "/profiles", label: "Profiles", icon: Users },
   { href: "/housing", label: "Housing", icon: Home },
   { href: "/schools", label: "Schools", icon: GraduationCap },
@@ -25,9 +36,18 @@ const navItems = [
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  onSearchOpen?: () => void;
+}
+
+export function Sidebar({ onSearchOpen }: SidebarProps) {
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+
+  const { data: alertCountData } = useGetAlertCount({
+    query: { queryKey: ["alerts-count"], refetchInterval: 60_000 }
+  });
+  const alertCount = alertCountData?.count ?? 0;
 
   return (
     <>
@@ -60,6 +80,7 @@ export function Sidebar() {
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location === item.href || (item.href !== "/" && location.startsWith(item.href));
+              const showBadge = item.alertBadge && alertCount > 0;
               
               return (
                 <Link key={item.href} href={item.href}>
@@ -70,7 +91,12 @@ export function Sidebar() {
                       : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
                   )}>
                     <Icon className={cn("h-4 w-4", isActive ? "text-primary" : "text-sidebar-foreground/60")} />
-                    {item.label}
+                    <span className="flex-1">{item.label}</span>
+                    {showBadge && (
+                      <span className="ml-auto bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 leading-none">
+                        {alertCount > 99 ? "99+" : alertCount}
+                      </span>
+                    )}
                   </div>
                 </Link>
               );
