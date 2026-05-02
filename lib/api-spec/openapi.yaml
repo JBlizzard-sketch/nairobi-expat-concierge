@@ -3,20 +3,32 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Nairobi Expat Concierge Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: relocations
+    description: Relocation case management
+  - name: profiles
+    description: Expat intake profiles
+  - name: housing
+    description: Housing listings
+  - name: schools
+    description: International schools
+  - name: vendors
+    description: Vetted vendors (car hire, ISPs, domestic staff, banks)
+  - name: dashboard
+    description: Dashboard summaries and analytics
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +36,597 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── Relocation Profiles ──────────────────────────────────────────────────
+  /profiles:
+    get:
+      operationId: listProfiles
+      tags: [profiles]
+      summary: List all expat intake profiles
+      responses:
+        "200":
+          description: List of profiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Profile"
+    post:
+      operationId: createProfile
+      tags: [profiles]
+      summary: Create a new expat intake profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProfileBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+
+  /profiles/{id}:
+    get:
+      operationId: getProfile
+      tags: [profiles]
+      summary: Get a single profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateProfile
+      tags: [profiles]
+      summary: Update a profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ─── Relocations ──────────────────────────────────────────────────────────
+  /relocations:
+    get:
+      operationId: listRelocations
+      tags: [relocations]
+      summary: List all relocation cases
+      responses:
+        "200":
+          description: List of relocations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Relocation"
+    post:
+      operationId: createRelocation
+      tags: [relocations]
+      summary: Create a new relocation case
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRelocationBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Relocation"
+
+  /relocations/{id}:
+    get:
+      operationId: getRelocation
+      tags: [relocations]
+      summary: Get a single relocation case
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Relocation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Relocation"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateRelocation
+      tags: [relocations]
+      summary: Update a relocation case
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRelocationBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Relocation"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteRelocation
+      tags: [relocations]
+      summary: Delete a relocation case
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /relocations/{id}/tasks:
+    get:
+      operationId: getRelocationTasks
+      tags: [relocations]
+      summary: Get tasks for a relocation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RelocationTask"
+
+  /relocations/{id}/tasks/{taskId}:
+    patch:
+      operationId: updateRelocationTask
+      tags: [relocations]
+      summary: Update a task within a relocation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRelocationTaskBody"
+      responses:
+        "200":
+          description: Updated task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RelocationTask"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ─── Housing ──────────────────────────────────────────────────────────────
+  /housing:
+    get:
+      operationId: listHousing
+      tags: [housing]
+      summary: List housing listings
+      responses:
+        "200":
+          description: List of listings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HousingListing"
+    post:
+      operationId: createHousingListing
+      tags: [housing]
+      summary: Create a housing listing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateHousingListingBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HousingListing"
+
+  /housing/{id}:
+    get:
+      operationId: getHousingListing
+      tags: [housing]
+      summary: Get a single housing listing
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Listing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HousingListing"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateHousingListing
+      tags: [housing]
+      summary: Update a housing listing
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateHousingListingBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HousingListing"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteHousingListing
+      tags: [housing]
+      summary: Delete a housing listing
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── Schools ──────────────────────────────────────────────────────────────
+  /schools:
+    get:
+      operationId: listSchools
+      tags: [schools]
+      summary: List international schools
+      responses:
+        "200":
+          description: List of schools
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/School"
+    post:
+      operationId: createSchool
+      tags: [schools]
+      summary: Create a school record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSchoolBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/School"
+
+  /schools/{id}:
+    get:
+      operationId: getSchool
+      tags: [schools]
+      summary: Get a single school
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: School
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/School"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateSchool
+      tags: [schools]
+      summary: Update a school record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSchoolBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/School"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ─── Vendors ──────────────────────────────────────────────────────────────
+  /vendors:
+    get:
+      operationId: listVendors
+      tags: [vendors]
+      summary: List vetted vendors
+      responses:
+        "200":
+          description: List of vendors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Vendor"
+    post:
+      operationId: createVendor
+      tags: [vendors]
+      summary: Create a vendor record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVendorBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vendor"
+
+  /vendors/{id}:
+    get:
+      operationId: getVendor
+      tags: [vendors]
+      summary: Get a single vendor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Vendor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vendor"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateVendor
+      tags: [vendors]
+      summary: Update a vendor record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateVendorBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vendor"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteVendor
+      tags: [vendors]
+      summary: Delete a vendor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── Dashboard (wow endpoints) ────────────────────────────────────────────
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Platform-wide summary counts
+      responses:
+        "200":
+          description: Summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /dashboard/recent-relocations:
+    get:
+      operationId: getRecentRelocations
+      tags: [dashboard]
+      summary: Recently created or updated relocations
+      responses:
+        "200":
+          description: Recent relocations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Relocation"
+
+  /dashboard/relocations-by-status:
+    get:
+      operationId: getRelocationsByStatus
+      tags: [dashboard]
+      summary: Relocation counts grouped by status
+      responses:
+        "200":
+          description: Status breakdown
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StatusCount"
+
+  /dashboard/housing-by-neighbourhood:
+    get:
+      operationId: getHousingByNeighbourhood
+      tags: [dashboard]
+      summary: Housing listing counts grouped by neighbourhood
+      responses:
+        "200":
+          description: Neighbourhood breakdown
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NeighbourhoodCount"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +637,612 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    # ─── Profile ──────────────────────────────────────────────────────────
+    Profile:
+      type: object
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        email:
+          type: string
+        nationality:
+          type: string
+        employer:
+          type: string
+        employerType:
+          type: string
+          description: "un | ngo | corporate | embassy | individual"
+        arrivalDate:
+          type: ["string", "null"]
+        familySize:
+          type: integer
+        schoolAgeChildren:
+          type: integer
+        budgetUsd:
+          type: ["integer", "null"]
+        neighbourhoodPreferences:
+          type: string
+          description: Comma-separated list of preferred neighbourhoods
+        specificNeeds:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - fullName
+        - email
+        - nationality
+        - employer
+        - employerType
+        - familySize
+        - schoolAgeChildren
+        - createdAt
+        - updatedAt
+
+    CreateProfileBody:
+      type: object
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+        nationality:
+          type: string
+        employer:
+          type: string
+        employerType:
+          type: string
+        arrivalDate:
+          type: ["string", "null"]
+        familySize:
+          type: integer
+        schoolAgeChildren:
+          type: integer
+        budgetUsd:
+          type: ["integer", "null"]
+        neighbourhoodPreferences:
+          type: string
+        specificNeeds:
+          type: ["string", "null"]
+      required:
+        - fullName
+        - email
+        - nationality
+        - employer
+        - employerType
+        - familySize
+        - schoolAgeChildren
+
+    UpdateProfileBody:
+      type: object
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+        nationality:
+          type: string
+        employer:
+          type: string
+        employerType:
+          type: string
+        arrivalDate:
+          type: ["string", "null"]
+        familySize:
+          type: integer
+        schoolAgeChildren:
+          type: integer
+        budgetUsd:
+          type: ["integer", "null"]
+        neighbourhoodPreferences:
+          type: string
+        specificNeeds:
+          type: ["string", "null"]
+
+    # ─── Relocation ──────────────────────────────────────────────────────
+    Relocation:
+      type: object
+      properties:
+        id:
+          type: integer
+        profileId:
+          type: integer
+        status:
+          type: string
+          description: "intake | planning | active | completed | on_hold"
+        stage:
+          type: string
+          description: "profile_complete | housing_shortlisted | school_applied | services_arranged | settled"
+        assignedTo:
+          type: ["string", "null"]
+        corporateAccount:
+          type: ["string", "null"]
+        packageTier:
+          type: string
+          description: "individual | corporate_standard | corporate_premium"
+        notes:
+          type: ["string", "null"]
+        completedAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        profile:
+          $ref: "#/components/schemas/Profile"
+      required:
+        - id
+        - profileId
+        - status
+        - stage
+        - packageTier
+        - createdAt
+        - updatedAt
+        - profile
+
+    CreateRelocationBody:
+      type: object
+      properties:
+        profileId:
+          type: integer
+        status:
+          type: string
+        stage:
+          type: string
+        assignedTo:
+          type: ["string", "null"]
+        corporateAccount:
+          type: ["string", "null"]
+        packageTier:
+          type: string
+        notes:
+          type: ["string", "null"]
+      required:
+        - profileId
+        - packageTier
+
+    UpdateRelocationBody:
+      type: object
+      properties:
+        status:
+          type: string
+        stage:
+          type: string
+        assignedTo:
+          type: ["string", "null"]
+        corporateAccount:
+          type: ["string", "null"]
+        packageTier:
+          type: string
+        notes:
+          type: ["string", "null"]
+        completedAt:
+          type: ["string", "null"]
+
+    # ─── Relocation Task ─────────────────────────────────────────────────
+    RelocationTask:
+      type: object
+      properties:
+        id:
+          type: integer
+        relocationId:
+          type: integer
+        category:
+          type: string
+          description: "housing | schools | car | internet | domestic_help | banking | orientation"
+        title:
+          type: string
+        status:
+          type: string
+          description: "pending | in_progress | completed | blocked"
+        notes:
+          type: ["string", "null"]
+        dueDate:
+          type: ["string", "null"]
+        completedAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - relocationId
+        - category
+        - title
+        - status
+        - createdAt
+        - updatedAt
+
+    UpdateRelocationTaskBody:
+      type: object
+      properties:
+        status:
+          type: string
+        notes:
+          type: ["string", "null"]
+        dueDate:
+          type: ["string", "null"]
+        completedAt:
+          type: ["string", "null"]
+
+    # ─── Housing ─────────────────────────────────────────────────────────
+    HousingListing:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        neighbourhood:
+          type: string
+          description: "gigiri | karen | westlands | kilimani | runda | lavington | riverside | muthaiga"
+        propertyType:
+          type: string
+          description: "apartment | house | townhouse | villa"
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        rentUsdPerMonth:
+          type: integer
+        isAvailable:
+          type: boolean
+        securityRating:
+          type: integer
+          description: "1-5 stars"
+        amenities:
+          type: string
+          description: Comma-separated amenities
+        imageUrl:
+          type: ["string", "null"]
+        landlordName:
+          type: ["string", "null"]
+        landlordPhone:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - title
+        - neighbourhood
+        - propertyType
+        - bedrooms
+        - bathrooms
+        - rentUsdPerMonth
+        - isAvailable
+        - securityRating
+        - createdAt
+        - updatedAt
+
+    CreateHousingListingBody:
+      type: object
+      properties:
+        title:
+          type: string
+        neighbourhood:
+          type: string
+        propertyType:
+          type: string
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        rentUsdPerMonth:
+          type: integer
+        isAvailable:
+          type: boolean
+        securityRating:
+          type: integer
+        amenities:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        landlordName:
+          type: ["string", "null"]
+        landlordPhone:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+      required:
+        - title
+        - neighbourhood
+        - propertyType
+        - bedrooms
+        - bathrooms
+        - rentUsdPerMonth
+        - securityRating
+
+    UpdateHousingListingBody:
+      type: object
+      properties:
+        title:
+          type: string
+        neighbourhood:
+          type: string
+        propertyType:
+          type: string
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        rentUsdPerMonth:
+          type: integer
+        isAvailable:
+          type: boolean
+        securityRating:
+          type: integer
+        amenities:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        landlordName:
+          type: ["string", "null"]
+        landlordPhone:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+
+    # ─── School ──────────────────────────────────────────────────────────
+    School:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        curriculum:
+          type: string
+          description: "ib | british | american | kenyan_cbc"
+        ageRangeMin:
+          type: integer
+        ageRangeMax:
+          type: integer
+        neighbourhood:
+          type: string
+        annualFeesUsd:
+          type: integer
+        hasWaitlist:
+          type: boolean
+        waitlistMonths:
+          type: ["integer", "null"]
+        admissionsContact:
+          type: ["string", "null"]
+        admissionsEmail:
+          type: ["string", "null"]
+        websiteUrl:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - name
+        - curriculum
+        - ageRangeMin
+        - ageRangeMax
+        - neighbourhood
+        - annualFeesUsd
+        - hasWaitlist
+        - createdAt
+        - updatedAt
+
+    CreateSchoolBody:
+      type: object
+      properties:
+        name:
+          type: string
+        curriculum:
+          type: string
+        ageRangeMin:
+          type: integer
+        ageRangeMax:
+          type: integer
+        neighbourhood:
+          type: string
+        annualFeesUsd:
+          type: integer
+        hasWaitlist:
+          type: boolean
+        waitlistMonths:
+          type: ["integer", "null"]
+        admissionsContact:
+          type: ["string", "null"]
+        admissionsEmail:
+          type: ["string", "null"]
+        websiteUrl:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+      required:
+        - name
+        - curriculum
+        - ageRangeMin
+        - ageRangeMax
+        - neighbourhood
+        - annualFeesUsd
+        - hasWaitlist
+
+    UpdateSchoolBody:
+      type: object
+      properties:
+        name:
+          type: string
+        curriculum:
+          type: string
+        ageRangeMin:
+          type: integer
+        ageRangeMax:
+          type: integer
+        neighbourhood:
+          type: string
+        annualFeesUsd:
+          type: integer
+        hasWaitlist:
+          type: boolean
+        waitlistMonths:
+          type: ["integer", "null"]
+        admissionsContact:
+          type: ["string", "null"]
+        admissionsEmail:
+          type: ["string", "null"]
+        websiteUrl:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+
+    # ─── Vendor ──────────────────────────────────────────────────────────
+    Vendor:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+          description: "car_hire | isp | domestic_agency | bank | mover | healthcare | other"
+        contactName:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        website:
+          type: ["string", "null"]
+        isVetted:
+          type: boolean
+        rating:
+          type: ["integer", "null"]
+          description: "1-5"
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - name
+        - category
+        - isVetted
+        - createdAt
+        - updatedAt
+
+    CreateVendorBody:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        contactName:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        website:
+          type: ["string", "null"]
+        isVetted:
+          type: boolean
+        rating:
+          type: ["integer", "null"]
+        notes:
+          type: ["string", "null"]
+      required:
+        - name
+        - category
+
+    UpdateVendorBody:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        contactName:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        website:
+          type: ["string", "null"]
+        isVetted:
+          type: boolean
+        rating:
+          type: ["integer", "null"]
+        notes:
+          type: ["string", "null"]
+
+    # ─── Dashboard ───────────────────────────────────────────────────────
+    DashboardSummary:
+      type: object
+      properties:
+        totalRelocations:
+          type: integer
+        activeRelocations:
+          type: integer
+        completedRelocations:
+          type: integer
+        totalProfiles:
+          type: integer
+        availableHousing:
+          type: integer
+        totalSchools:
+          type: integer
+        totalVendors:
+          type: integer
+        vettedVendors:
+          type: integer
+      required:
+        - totalRelocations
+        - activeRelocations
+        - completedRelocations
+        - totalProfiles
+        - availableHousing
+        - totalSchools
+        - totalVendors
+        - vettedVendors
+
+    StatusCount:
+      type: object
+      properties:
+        status:
+          type: string
+        count:
+          type: integer
+      required:
+        - status
+        - count
+
+    NeighbourhoodCount:
+      type: object
+      properties:
+        neighbourhood:
+          type: string
+        count:
+          type: integer
+      required:
+        - neighbourhood
+        - count
